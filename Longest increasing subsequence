@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+private:
+    int f(int ind, vector<int>& nums, vector<int>& dp, vector<int>& parent) {
+        if (dp[ind] != -1) return dp[ind];
+
+        dp[ind] = 1;
+        parent[ind] = ind;
+
+        for (int prev = 0; prev < ind; prev++) {
+            if (nums[ind] % nums[prev] == 0) {
+                int len = f(prev, nums, dp, parent) + 1;
+
+                if (len > dp[ind]) {
+                    dp[ind] = len;
+                    parent[ind] = prev;
+                }
+            }
+        }
+
+        return dp[ind];
+    }
+
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        int n = nums.size();
+
+        if (n == 0) return {};
+
+        sort(nums.begin(), nums.end());
+
+        vector<int> dp(n, -1);
+        vector<int> parent(n);
+
+        int bestEnd = 0;
+
+        for (int i = 0; i < n; i++) {
+            int len = f(i, nums, dp, parent);
+
+            if (len > dp[bestEnd]) {
+                bestEnd = i;
+            }
+        }
+
+        vector<int> answer;
+
+        while (parent[bestEnd] != bestEnd) {
+            answer.push_back(nums[bestEnd]);
+            bestEnd = parent[bestEnd];
+        }
+
+        answer.push_back(nums[bestEnd]);
+
+        reverse(answer.begin(), answer.end());
+
+        return answer;
+    }
+};
+
+int main() {
+    vector<int> nums = {1, 16, 7, 8, 4};
+
+    Solution obj;
+    vector<int> answer = obj.largestDivisibleSubset(nums);
+
+    for (int x : answer) {
+        cout << x << " ";
+    }
+
+    cout << endl;
+
+    return 0;
+}
